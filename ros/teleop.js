@@ -5,8 +5,7 @@
 const rosnodejs = require('rosnodejs');
 const Worker = require('webworker-threads').Worker;
 
-// Build the messages before proceeding
-var msgs_promise = rosnodejs.loadAllPackages();
+// Globals for the messages
 var sensor_msgs = null, std_msgs = null;
 
 // Constants
@@ -114,6 +113,11 @@ class Teleoperator {
 
     // Initialize the node handler
     initialize(nh) {
+        // First initialize the global messages
+        sensor_msgs = rosnodejs.require('sensor_msgs').msg;
+        std_msgs = rosnodejs.require('std_msgs').msg;
+
+        // Then the internal variables for this handler
         this.nh = nh;
         this.joyPub = nh.advertise('/joy', 'sensor_msgs/Joy');
 
@@ -208,19 +212,6 @@ class Teleoperator {
 }
 
 var teleop = new Teleoperator();
-
-// Connect the node handle and setup the publishers. Perhaps this setup should
-// be in the main routes file so that all possible classes share the node name
-// and the node handle? TODO: Create a status class, and do that.
-var init_promise = rosnodejs.initNode('hlpr_web_teleop');
-Promise.all([msgs_promise, init_promise])
-    .then(() => {
-        sensor_msgs = rosnodejs.require('sensor_msgs').msg;
-        std_msgs = rosnodejs.require('std_msgs').msg;
-
-        // Expose the node handle and the published topic
-        teleop.initialize(rosnodejs.nh);
-    });
 
 // Export the node handle
 module.exports = teleop;
