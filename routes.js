@@ -11,15 +11,15 @@ var router = express.Router();
 var ws = require('ws');
 var browserify = require('browserify-middleware');
 
-// Initialize the ROS system
-const rosnodejs = require('rosnodejs');
-var msgs_promise = rosnodejs.loadAllPackages();
-var init_promise = rosnodejs.initNode('hlpr_web_teleop');
+// Initialize the ROS system  TODO: Enable post development. Maybe move to WS
+// const rosnodejs = require('rosnodejs');
+// var msgs_promise = rosnodejs.loadAllPackages();
+// var init_promise = rosnodejs.initNode('hlpr_web_teleop');
 
 // Fetch the ROS API
-var teleop = require('./ros/teleop');
+// var teleop = require('./ros/teleop');
 
-// Complete the ROS Initialization. TODO: Enable post development
+// Complete the ROS Initialization.
 // Promise.all([msgs_promise, init_promise])
 //     .then(() => {
 //         teleop.initialize(rosnodejs.nh);
@@ -31,13 +31,13 @@ browserify.settings({
 });
 
 // Setup the router to serve js through the browserify middleware
-router.get('/js/react.js', browserify(['react', 'react-dom']));
+router.get('/js/react.js', browserify(['react', 'react-dom', 'react-router-dom']));
 router.get('/js/jquery.js', browserify(['jquery']));
 router.use(
     '/js',
     browserify(
         path.join(__dirname, 'js'),
-        { external: ["react", "react-dom", "jquery"] }
+        { external: ["react", "react-dom", "react-router-dom", "jquery"] }
     )
 );
 router.use('/css', express.static(path.join(__dirname, 'css')));
