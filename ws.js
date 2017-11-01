@@ -55,22 +55,22 @@ var router = function (options) {
                 setTimeout(() => { console.log("Reset"); }, BUTTON_TIMEOUT);
                 break;
             case "KINECT_PAN":
-                console.log("Kinect Pan");
+                console.log("Kinect Pan: " + data.value);
                 break;
             case "KINECT_TILT":
-                console.log("Kinect Tilt");
+                console.log("Kinect Tilt: " + data.value);
                 break;
             case "BASE_FORWARD":
-                console.log("Base Forward");
+                console.log("Base Forward: " + data.value);
                 break;
             case "BASE_SPIN":
-                console.log("Base Spin");
+                console.log("Base Spin: " + data.value);
                 break;
             case "BASE_STRAFE":
-                console.log("Base Strafe");
+                console.log("Base Strafe: " + data.value);
                 break;
             case "GRIP_CMD":
-                console.log("Grip Command");
+                console.log("Grip Command: " + data.value);
                 break;
             case "BTN_RELEASE":
                 console.log("Reset");
