@@ -11,20 +11,6 @@ var router = express.Router();
 var ws = require('ws');
 var browserify = require('browserify-middleware');
 
-// Initialize the ROS system  TODO: Enable post development. Maybe move to WS
-// const rosnodejs = require('rosnodejs');
-// var msgs_promise = rosnodejs.loadAllPackages();
-// var init_promise = rosnodejs.initNode('hlpr_web_teleop');
-
-// Fetch the ROS API
-// var teleop = require('./ros/teleop');
-
-// Complete the ROS Initialization.
-// Promise.all([msgs_promise, init_promise])
-//     .then(() => {
-//         teleop.initialize(rosnodejs.nh);
-//     });
-
 // Set browserify settings
 browserify.settings({
     transform: [[ "babelify", { "presets": ["env", "react"] } ]]

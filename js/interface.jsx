@@ -43,13 +43,19 @@ class Header extends React.Component {
 class HomePage extends React.Component {
     render() {
         return (
-            <div style={{ height: "480px" }} className="col-md-12">
-            <div className="row" style={{ height: "50%" }}>
-                <span className="text-center col-md-6"><Link to="/kinect">Kinect</Link></span>
-                <span className="text-center col-md-6"><Link to="/base">Base</Link></span>
+            <div>
+            <div className="row align-items-center">
+                <div className="col-md-6"><Link to="/kinect">
+                    Kinect
+                </Link></div>
+                <div className="col-md-6"><Link to="/base">
+                    Base
+                </Link></div>
             </div>
-            <div className="row" style={{ height: "50%" }}>
-                <span className="text-center col-md-6"><Link to="/gripper">Gripper</Link></span>
+            <div className="row align-items-center">
+                <div className="col-md-6"><Link to="/gripper">
+                    Gripper
+                </Link></div>
             </div>
             </div>
         );
@@ -59,7 +65,18 @@ class HomePage extends React.Component {
 class KinectPage extends React.Component {
     render() {
         return (
-            <h1>Kinect Control</h1>
+            <div>
+            <div className="row align-items-center">
+                <div className="offset-3 col-6">Tilt Up</div>
+            </div>
+            <div className="row align-items-center">
+                <div className="col-6">Pan Left</div>
+                <div className="col-6">Pan Right</div>
+            </div>
+            <div className="row align-items-center">
+                <div className="offset-3 col-6">Tilt Down</div>
+            </div>
+            </div>
         );
     }
 }
@@ -67,7 +84,21 @@ class KinectPage extends React.Component {
 class BasePage extends React.Component {
     render() {
         return (
-            <h1>Base Control</h1>
+            <div>
+            <div className="row align-items-center">
+                <div className="offset-3 col-6">Tractor/Standby</div>
+            </div>
+            <div className="row align-items-center">
+                <div className="col-4">Spin Left</div>
+                <div className="col-4">Move Forward</div>
+                <div className="col-4">Spin Right</div>
+            </div>
+            <div className="row align-items-center">
+                <div className="col-4">Strafe Left</div>
+                <div className="col-4">Move Backward</div>
+                <div className="col-4">Strafe Right</div>
+            </div>
+            </div>
         );
     }
 }
@@ -75,7 +106,9 @@ class BasePage extends React.Component {
 class GripperPage extends React.Component {
     render() {
         return (
-            <h1>Gripper Control</h1>
+            <div className="offset-1 col-10">
+            <input type="range" min="-1" max="1" step="0.01"></input>
+            </div>
         );
     }
 }
