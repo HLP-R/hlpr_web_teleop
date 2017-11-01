@@ -216,16 +216,36 @@ class KinectPage extends React.Component {
     render() {
         return (
             <div>
-            <div className="row align-items-center">
-                <div className="offset-3 col-6" onClick={this.reset}>Reset</div>
+            <div className="mt-4 row">
+                <div className="offset-3 col-6 btn btn-warning" onClick={this.reset}>Reset</div>
             </div>
-            <div className="row align-items-center">
-            <div className="col-md-6">
+            <div className="mt-4 row align-items-center">
+            <table className="col-md-6">
+            <tbody>
+            <tr>
+                <td width="40%">
+                    <img src="/teleop/static/kinect-tilt.png" className="img-fluid" />
+                    <h3 className="text-center">Tilt</h3>
+                </td>
+                <td width="60%">
                 <RangeSlider type="half-right-round" min={-1} max={1} step={0.01} start={0} onChange={this.tiltChange} reset="kinect:reset" />
-            </div>
-            <div className="col-md-6">
+                </td>
+            </tr>
+            </tbody>
+            </table>
+            <table className="col-md-6">
+            <tbody>
+            <tr>
+                <td width="40%">
+                    <img src="/teleop/static/kinect-pan.png" className="img-fluid" />
+                    <h3 className="text-center">Pan</h3>
+                </td>
+                <td width="60%">
                 <RangeSlider type="half-top-round" min={-1} max={1} step={0.01} start={0} onChange={this.panChange} reset="kinect:reset" />
-            </div>
+                </td>
+            </tr>
+            </tbody>
+            </table>
             </div>
             </div>
         );
@@ -315,19 +335,31 @@ class BasePage extends React.Component {
     render() {
         return (
             <div>
-            <div className="row align-items-center">
-                <div className="col-6" onClick={this.tractor}>Tractor</div>
-                <div className="col-6" onClick={this.standby}>Standby</div>
+            <div className="mt-4 row">
+                <div className="offset-1 col-4 btn btn-warning" onClick={this.tractor}>Enable</div>
+                <div className="offset-2 col-4 btn btn-warning" onClick={this.standby}>Disable</div>
             </div>
-            <div className="row align-items-center">
-                <div className="col-4" onMouseDown={this.spinLeft} onTouchStart={this.spinLeft} onMouseUp={this.reset} onTouchEnd={this.reset}>Spin Left</div>
-                <div className="col-4" onMouseDown={this.forward} onTouchStart={this.forward} onMouseUp={this.reset} onTouchEnd={this.reset}>Move Forward</div>
-                <div className="col-4" onMouseDown={this.spinRight} onTouchStart={this.spinRight} onMouseUp={this.reset} onTouchEnd={this.reset}>Spin Right</div>
+            <div className="mt-4 row text-center">
+                <div className="offset-1 col-2 btn btn-info" onMouseDown={this.spinLeft} onTouchStart={this.spinLeft} onMouseUp={this.reset} onTouchEnd={this.reset}>
+                    <span className="fa fa-rotate-left fa-2x"></span>
+                </div>
+                <div className="offset-2 col-2 btn btn-secondary" onMouseDown={this.forward} onTouchStart={this.forward} onMouseUp={this.reset} onTouchEnd={this.reset}>
+                    <span className="fa fa-long-arrow-up fa-2x"></span>
+                </div>
+                <div className="offset-2 col-2 btn btn-info" onMouseDown={this.spinRight} onTouchStart={this.spinRight} onMouseUp={this.reset} onTouchEnd={this.reset}>
+                    <span className="fa fa-rotate-right fa-2x"></span>
+                </div>
             </div>
-            <div className="row align-items-center">
-                <div className="col-4" onMouseDown={this.strafeLeft} onTouchStart={this.strafeLeft} onMouseUp={this.reset} onTouchEnd={this.reset}>Strafe Left</div>
-                <div className="col-4" onMouseDown={this.backward} onTouchStart={this.backward} onMouseUp={this.reset} onTouchEnd={this.reset}>Move Backward</div>
-                <div className="col-4" onMouseDown={this.strafeRight} onTouchStart={this.strafeRight} onMouseUp={this.reset} onTouchEnd={this.reset}>Strafe Right</div>
+            <div className="mt-4 row text-center">
+                <div className="offset-1 col-2 btn btn-secondary" onMouseDown={this.strafeLeft} onTouchStart={this.strafeLeft} onMouseUp={this.reset} onTouchEnd={this.reset}>
+                    <span className="fa fa-long-arrow-left fa-2x"></span>
+                </div>
+                <div className="offset-2 col-2 btn btn-secondary" onMouseDown={this.backward} onTouchStart={this.backward} onMouseUp={this.reset} onTouchEnd={this.reset}>
+                    <span className="fa fa-long-arrow-down fa-2x"></span>
+                </div>
+                <div className="offset-2 col-2 btn btn-secondary" onMouseDown={this.strafeRight} onTouchStart={this.strafeRight} onMouseUp={this.reset} onTouchEnd={this.reset}>
+                    <span className="fa fa-long-arrow-right fa-2x"></span>
+                </div>
             </div>
             </div>
         );
@@ -380,8 +412,21 @@ class GripperPage extends React.Component {
 
     render() {
         return (
-            <div className="offset-1 col-10">
+            <div>
+            <div className="mt-4 row">
+                <div className="offset-3 col-6 btn btn-warning" onClick={this.reset}>Reset</div>
+            </div>
+            <div className="mt-4 row align-items-center">
+                <div className="col-3 text-center">
+                    <img src="/teleop/static/gripper-close.png" className="img-fluid" />
+                </div>
+                <div className="col-6">
                 <RangeSlider type="horizontal" min={-1} max={1} step={0.01} start={0} onChange={this.gripChange} reset="gripper:reset" />
+                </div>
+                <div className="col-3 text-center">
+                    <img src="/teleop/static/gripper-open.png" className="img-fluid" />
+                </div>
+            </div>
             </div>
         );
     }
