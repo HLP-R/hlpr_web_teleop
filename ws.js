@@ -4,25 +4,11 @@
 
 const WebSocket = require('ws');
 
-// Initialize the ROS system.
-// const rosnodejs = require('rosnodejs');
-// var msgs_promise = rosnodejs.loadAllPackages();
-// var init_promise = rosnodejs.initNode('hlpr_web_teleop');
-
-// // Fetch the ROS API
-// var teleop = require('./ros/teleop');
-
-// // Complete the ROS Initialization.
-// Promise.all([msgs_promise, init_promise])
-//     .then(() => {
-//         teleop.initialize(rosnodejs.nh);
-//     });
-
 // Global configs
 const BUTTON_TIMEOUT = 500; // timeout for resetting the button message in ms.
 
 // The endpoints are created upon the instantiation of an object of this class
-var router = function (options) {
+var routerFactory = function (options) {
     var wss = new WebSocket.Server(options);
     var teleop = options.rosnodes[0];
 
@@ -83,5 +69,5 @@ var router = function (options) {
     return wss;
 }
 
-// Export the router
-module.exports = router;
+// Export the routerFactory
+module.exports = routerFactory;
