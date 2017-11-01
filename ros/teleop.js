@@ -104,7 +104,7 @@ class Teleoperator {
         }
 
         if (this._state.mode == Modes.GRIPPER) {
-            msg.axes[Axes.G] = this._state.G;
+            msg.axes[Axes.G] = this._state.g;
         }
 
         // Return the message
@@ -131,12 +131,14 @@ class Teleoperator {
         };
 
         // Set the timeout to publish messages regularly
-        nh.getParam('/joy_node/autorepeat_rate').then((rate) => {
-            this._interval = setInterval(
-                () => { this._worker.postMessage(); },
-                1000 / (rate || 50)
-            );
-        });
+        nh.getParam('/joy_node/autorepeat_rate')
+            .then((rate) => { return rate; }, () => { return 50; })
+            .then((rate) => {
+                this._interval = setInterval(
+                    () => { this._worker.postMessage(); },
+                    1000 / (rate || 50)
+                );
+            }).catch(console.error);
     }
 
     // Various methods to control the state of the class. Don't forget to call

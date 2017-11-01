@@ -26,7 +26,7 @@ router.use(
         { external: ["react", "react-dom", "react-router-dom", "jquery"] }
     )
 );
-router.use('/css', express.static(path.join(__dirname, 'css')));
+router.use('/static', express.static(path.join(__dirname, 'static')));
 
 // Load the static pages because I cannot understand Express routing sometimes
 var teleopPage;

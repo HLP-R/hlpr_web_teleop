@@ -40,6 +40,111 @@ class Header extends React.Component {
     }
 }
 
+// Components that can be used internally
+class RangeSlider extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.resetListener = null;
+    }
+
+    componentDidMount() {
+        // Initialize the slider scripts
+        switch (this.props.type) {
+        case "half-right-round":
+            $(this.slider).roundSlider({
+                radius: 100,
+                circleShape: "half-right",
+                showTooltip: false,
+                value: this.props.start,
+                min: this.props.min,
+                max: this.props.max,
+                step: this.props.step,
+                change: (e) => this.props.onChange(e.value)
+            });
+
+            this.resetListener = () => { $(this.slider).roundSlider("option", "value", this.props.start); };
+            break;
+        case "half-top-round":
+            $(this.slider).roundSlider({
+                radius: 100,
+                circleShape: "half-top",
+                showTooltip: false,
+                value: this.props.start,
+                min: this.props.min,
+                max: this.props.max,
+                step: this.props.step,
+                change: (e) => this.props.onChange(e.value)
+            });
+
+            this.resetListener = () => { $(this.slider).roundSlider("option", "value", this.props.start); };
+            break;
+        case "vertical":
+            this.slider.setAttribute("style", "height: 100px");
+            noUiSlider.create(this.slider, {
+                start: [ this.props.start ],
+                orientation: "vertical",
+                step: this.props.step,
+                range: {
+                    'min': [ this.props.min ],
+                    'max': [ this.props.max ]
+                }
+            });
+            this.slider.noUiSlider.on('change', (e) => this.props.onChange(e[0]));
+
+            // Setup reset listeners
+            this.resetListener = () => { this.slider.noUiSlider.set(this.props.start); };
+            break;
+        case "horizontal":
+        default:
+            noUiSlider.create(this.slider, {
+                start: [ this.props.start ],
+                step: this.props.step,
+                range: {
+                    'min': [ this.props.min ],
+                    'max': [ this.props.max ]
+                }
+            });
+            this.slider.noUiSlider.on('change', (e) => this.props.onChange(e[0]));
+
+            // Setup reset listeners
+            this.resetListener = () => { this.slider.noUiSlider.set(this.props.start); };
+            break;
+        }
+
+        // Setup the reset listener
+        this.context.emitter.on(this.props.reset, this.resetListener);
+    }
+
+    componentWillUnmount() {
+        switch (this.props.type) {
+        case "half-right-round":
+        case "half-top-round":
+            $(this.slider).roundSlider("destroy");
+            break;
+        case "vertical":
+        case "horizontal":
+        default:
+            this.slider.noUiSlider.destroy();
+            break;
+        }
+
+        // Remove the reset listener
+        this.context.emitter.off(this.props.reset, this.resetListener);
+        this.resetListener = null;
+    }
+
+    render() {
+        return (
+            <div ref={elem => this.slider = elem}></div>
+        );
+    }
+}
+
+RangeSlider.contextTypes = {
+    emitter: PropTypes.object
+};
+
 // The Components for each of the pages
 class HomePage extends React.Component {
     render() {
@@ -70,10 +175,8 @@ class KinectPage extends React.Component {
         this.check_ws_timeout = null;
 
         this.reset = this.reset.bind(this);
-        this.tiltUp = this.tiltUp.bind(this);
-        this.tiltDown = this.tiltDown.bind(this);
-        this.panLeft = this.panLeft.bind(this);
-        this.panRight = this.panRight.bind(this);
+        this.tiltChange = this.tiltChange.bind(this);
+        this.panChange = this.panChange.bind(this);
     }
 
     componentDidMount() {
@@ -81,6 +184,7 @@ class KinectPage extends React.Component {
         var check_ws_and_send = () => {
             if (this.context.ws.readyState != 1) {
                 this.check_ws_timeout = setTimeout(check_ws_and_send, 100);
+                return;
             }
             this.check_ws_timeout = null;
             this.context.ws.send(JSON.stringify({ event: "MODE_KINECT" }));
@@ -98,36 +202,30 @@ class KinectPage extends React.Component {
 
     reset(e) {
         this.context.ws.send(JSON.stringify({ event: "BTN_RELEASE" }));
+        this.context.emitter.emit("kinect:reset");
     }
 
-    tiltUp(e) {
-        this.context.ws.send(JSON.stringify({ event: "KINECT_TILT", value: -1 }));
+    tiltChange(val) {
+        this.context.ws.send(JSON.stringify({ event: "KINECT_TILT", value: val }));
     }
 
-    tiltDown(e) {
-        this.context.ws.send(JSON.stringify({ event: "KINECT_TILT", value: 1 }));
-    }
-
-    panLeft(e) {
-        this.context.ws.send(JSON.stringify({ event: "KINECT_PAN", value: 1}));
-    }
-
-    panRight(e) {
-        this.context.ws.send(JSON.stringify({ event: "KINECT_PAN", value: -1}));
+    panChange(val) {
+        this.context.ws.send(JSON.stringify({ event: "KINECT_PAN", value: val }));
     }
 
     render() {
         return (
             <div>
             <div className="row align-items-center">
-                <div className="offset-3 col-6" onMouseDown={this.tiltUp} onTouchStart={this.tiltUp} onMouseUp={this.reset} onTouchEnd={this.reset}>Tilt Up</div>
+                <div className="offset-3 col-6" onClick={this.reset}>Reset</div>
             </div>
             <div className="row align-items-center">
-                <div className="col-6" onMouseDown={this.panLeft} onTouchStart={this.panLeft} onMouseUp={this.reset} onTouchEnd={this.reset}>Pan Left</div>
-                <div className="col-6" onMouseDown={this.panRight} onTouchStart={this.panRight} onMouseUp={this.reset} onTouchEnd={this.reset}>Pan Right</div>
+            <div className="col-md-6">
+                <RangeSlider type="half-right-round" min={-1} max={1} step={0.01} start={0} onChange={this.tiltChange} reset="kinect:reset" />
             </div>
-            <div className="row align-items-center">
-                <div className="offset-3 col-6" onMouseDown={this.tiltDown} onTouchStart={this.tiltDown} onMouseUp={this.reset} onTouchEnd={this.reset}>Tilt Down</div>
+            <div className="col-md-6">
+                <RangeSlider type="half-top-round" min={-1} max={1} step={0.01} start={0} onChange={this.panChange} reset="kinect:reset" />
+            </div>
             </div>
             </div>
         );
@@ -218,8 +316,8 @@ class BasePage extends React.Component {
         return (
             <div>
             <div className="row align-items-center">
-                <div className="col-6" onMouseDown={this.tractor} onTouchStart={this.tractor} onMouseUp={this.reset} onTouchEnd={this.reset}>Tractor</div>
-                <div className="col-6" onMouseDown={this.standby} onTouchStart={this.standby} onMouseUp={this.reset} onTouchEnd={this.reset}>Standby</div>
+                <div className="col-6" onClick={this.tractor}>Tractor</div>
+                <div className="col-6" onClick={this.standby}>Standby</div>
             </div>
             <div className="row align-items-center">
                 <div className="col-4" onMouseDown={this.spinLeft} onTouchStart={this.spinLeft} onMouseUp={this.reset} onTouchEnd={this.reset}>Spin Left</div>
@@ -246,6 +344,9 @@ class GripperPage extends React.Component {
         super(props);
 
         this.check_ws_timeout = null;
+
+        this.reset = this.reset.bind(this);
+        this.gripChange = this.gripChange.bind(this);
     }
 
     componentDidMount() {
@@ -268,10 +369,19 @@ class GripperPage extends React.Component {
         }
     }
 
+    reset(e) {
+        this.context.ws.send(JSON.stringify({ event: "BTN_RELEASE" }));
+        this.context.emitter.emit("gripper:reset");
+    }
+
+    gripChange(val) {
+        this.context.ws.send(JSON.stringify({ event: "GRIP_CMD", value: val }));
+    }
+
     render() {
         return (
             <div className="offset-1 col-10">
-            <input type="range" min="-1" max="1" step="0.01"></input>
+                <RangeSlider type="horizontal" min={-1} max={1} step={0.01} start={0} onChange={this.gripChange} reset="gripper:reset" />
             </div>
         );
     }
