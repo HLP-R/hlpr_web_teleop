@@ -14,6 +14,28 @@ import PropTypes from 'prop-types';
 
 // Navbar
 class Header extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = { battery: "Unknown" };
+
+        this.updateListener = null;
+    }
+
+    componentDidMount() {
+        // Setup the update listener
+        this.updateListener = (data) => this.setState(
+            { battery: data.battery }
+        );
+        this.context.emitter.on("status:update", this.updateListener);
+    }
+
+    componentWillUnmount() {
+        // Remove the update listener
+        this.context.emitter.off("status:update", this.updateListener);
+        this.updateListener = null;
+    }
+
     render() {
         return (
             <nav className="navbar navbar-expand-md navbar-dark bg-dark">
@@ -34,11 +56,18 @@ class Header extends React.Component {
                             <Link to="/gripper"><span className="nav-link">Gripper</span></Link>
                         </li>
                     </ul>
+                    <span className="navbar-text">
+                    Battery: { this.state.battery }%
+                    </span>
                 </div>
             </nav>
         );
     }
 }
+
+Header.contextTypes = {
+    emitter: PropTypes.object
+};
 
 // Components that can be used internally
 class RangeSlider extends React.Component {
@@ -60,7 +89,8 @@ class RangeSlider extends React.Component {
                 min: this.props.min,
                 max: this.props.max,
                 step: this.props.step,
-                change: (e) => this.props.onChange(e.value)
+                change: (e) => this.props.onChange(e.value),
+                drag: (e) => this.props.onChange(e.value)
             });
 
             this.resetListener = () => { $(this.slider).roundSlider("option", "value", this.props.start); };
@@ -74,7 +104,8 @@ class RangeSlider extends React.Component {
                 min: this.props.min,
                 max: this.props.max,
                 step: this.props.step,
-                change: (e) => this.props.onChange(e.value)
+                change: (e) => this.props.onChange(e.value),
+                drag: (e) => this.props.onChange(e.value)
             });
 
             this.resetListener = () => { $(this.slider).roundSlider("option", "value", this.props.start); };
@@ -201,7 +232,8 @@ class KinectPage extends React.Component {
     }
 
     reset(e) {
-        this.context.ws.send(JSON.stringify({ event: "BTN_RELEASE" }));
+        this.context.ws.send(JSON.stringify({ event: "KINECT_TILT", value: 0 }));
+        this.context.ws.send(JSON.stringify({ event: "KINECT_PAN", value: 0 }));
         this.context.emitter.emit("kinect:reset");
     }
 

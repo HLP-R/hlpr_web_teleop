@@ -7,27 +7,49 @@ const WebSocket = require('ws');
 // Global configs
 const BUTTON_TIMEOUT = 500; // timeout for resetting the button message in ms.
 
+// Setup for heartbeat checking
+function heartbeat() {
+    this.isAlive = true;
+}
+
 // The endpoints are created upon the instantiation of an object of this class
 var routerFactory = function (options) {
     var wss = new WebSocket.Server(options);
     var teleop = options.rosnodes[0];
+    var status = options.rosnodes[1];
 
+    // Configure the message passing for incoming client connections
     wss.on('connection', (ws, req) => {
         // If we want to do some socket validation, such as checking cookies,
         // that should go in here.
 
-        // Send the initial message response on connection with the state info
+        // Setup heartbeat
+        ws.isAlive = true;
+        ws.on('pong', heartbeat);
 
+        // Set up for status updates to the client
+        ws.statusCb = (state) => {
+            if (state.teleop_enable) {
+                teleop.start();
+            } else {
+                teleop.stop();
+            }
+            ws.send(JSON.stringify(state));
+        }
+        status.addListener(ws.statusCb);
+        teleop.start();
+
+        // Setup for messages from the client
         ws.on('message', (msg) => {
             var data = JSON.parse(msg);
 
             // Based on the event, hit the appropriate teleop endpoint
             switch(data.event) {
             case "ENABLE":
-                teleop.start();
+                status.setTeleopEnable(true);
                 break;
             case "DISABLE":
-                teleop.stop();
+                status.setTeleopEnable(false);
                 break;
             case "MODE_KINECT":
                 teleop.kinect_mode();
@@ -72,7 +94,23 @@ var routerFactory = function (options) {
                 break;
             }
         });
+
+        // Send a status update to the client
+        ws.statusCb(status.get());
     });
+
+    // Check heartbeat
+    const checkInterval = setInterval(function ping() {
+        wss.clients.forEach((ws) => {
+            if (!ws.isAlive) {
+                status.removeListener(ws.statusCb);
+                return ws.terminate();
+            }
+
+            ws.isAlive = false;
+            ws.ping('', false, true);
+        });
+    }, 30000);
 
     return wss;
 }

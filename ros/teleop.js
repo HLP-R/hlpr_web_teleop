@@ -1,5 +1,5 @@
-/** ros.js
- * The interface to the ROS system
+/** teleop.js
+ * The interface to the ROS teleop system
  */
 
 const rosnodejs = require('rosnodejs');
@@ -32,13 +32,11 @@ const Modes = {
     GRIPPER: 2
 };
 
-// Variable for the handlers that are exposed
+// Class for the handlers that are exposed
 class Teleoperator {
     constructor() {
         // Private variables
         this._joySeq = 0;
-        this._sensor_msgs = null;
-        this._std_msgs = null;
         this._worker = null;
         this._interval = null;
 
@@ -54,7 +52,7 @@ class Teleoperator {
             y: 0.0,
             z: 0.0,
             g: 0.0
-        }
+        };
 
         // Public Handles
         this.nh = null;
@@ -135,8 +133,10 @@ class Teleoperator {
     start() {
         // Make sure that there is only one interval in operation
         if (!!this._interval) {
-            clearInterval(this._interval);
+            return;
         }
+
+        console.log(this);
 
         // Set the timeout to publish messages regularly. Default is 50
         this.nh.getParam('/joy_node/autorepeat_rate')

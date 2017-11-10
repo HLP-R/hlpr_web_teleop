@@ -9,6 +9,9 @@ var ws = new WebSocket('ws://' + window.location.host + '/teleop');
 
 // Define the events and the conditions to dispatch them. This would be for a
 // later version where we feed Prentice's state back to the app
+ws.addEventListener('message', (event) => {
+    emitter.emit("status:update", JSON.parse(event.data));
+});
 
 // Render the react app
 ReactDOM.render((
