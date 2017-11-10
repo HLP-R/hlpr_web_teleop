@@ -14,13 +14,21 @@ var routerFactory = function (options) {
 
     wss.on('connection', (ws, req) => {
         // If we want to do some socket validation, such as checking cookies,
-        // that should go in here
+        // that should go in here.
+
+        // Send the initial message response on connection with the state info
 
         ws.on('message', (msg) => {
             var data = JSON.parse(msg);
 
             // Based on the event, hit the appropriate teleop endpoint
             switch(data.event) {
+            case "ENABLE":
+                teleop.start();
+                break;
+            case "DISABLE":
+                teleop.stop();
+                break;
             case "MODE_KINECT":
                 teleop.kinect_mode();
                 setTimeout(teleop.reset.bind(teleop), BUTTON_TIMEOUT);

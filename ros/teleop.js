@@ -129,9 +129,17 @@ class Teleoperator {
             var msg = this._createJoyMsg(); // Magic is in here
             this.joyPub.publish(msg);
         };
+    }
 
-        // Set the timeout to publish messages regularly
-        nh.getParam('/joy_node/autorepeat_rate')
+    // Flag to start the worker
+    start() {
+        // Make sure that there is only one interval in operation
+        if (!!this._interval) {
+            clearInterval(this._interval);
+        }
+
+        // Set the timeout to publish messages regularly. Default is 50
+        this.nh.getParam('/joy_node/autorepeat_rate')
             .then((rate) => { return rate; }, () => { return 50; })
             .then((rate) => {
                 this._interval = setInterval(
@@ -139,6 +147,13 @@ class Teleoperator {
                     1000 / (rate || 50)
                 );
             }).catch(console.error);
+    }
+
+    stop() {
+        if (!!this._interval) {
+            clearInterval(this._interval);
+            this._interval = null;
+        }
     }
 
     // Various methods to control the state of the class. Don't forget to call
