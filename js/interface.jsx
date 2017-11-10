@@ -17,7 +17,7 @@ class Header extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = { battery: "Unknown" };
+        this.state = { battery: null };
 
         this.updateListener = null;
     }
@@ -182,17 +182,29 @@ class HomePage extends React.Component {
         return (
             <div>
             <div className="row align-items-center">
-                <div className="col-md-6"><Link to="/kinect">
-                    Kinect
-                </Link></div>
-                <div className="col-md-6"><Link to="/base">
-                    Base
-                </Link></div>
+                <div className="mt-4 col-md-4 offset-md-1">
+                <div className="card">
+                <Link to="/kinect">
+                    <h1 className="card-title text-center">Kinect</h1>
+                </Link>
+                </div>
+                </div>
+                <div className="mt-4 col-md-4 offset-md-2">
+                <div className="card">
+                <Link to="/base">
+                    <h1 className="card-title text-center">Base</h1>
+                </Link>
+                </div>
+                </div>
             </div>
             <div className="row align-items-center">
-                <div className="col-md-6"><Link to="/gripper">
-                    Gripper
-                </Link></div>
+                <div className="mt-4 col-md-4 offset-md-1">
+                <div className="card">
+                <Link to="/gripper">
+                    <h1 className="card-title text-center">Gripper</h1>
+                </Link>
+                </div>
+                </div>
             </div>
             </div>
         );
@@ -293,6 +305,8 @@ class BasePage extends React.Component {
     constructor(props) {
         super(props);
 
+        this.state = { enabled: false };
+
         this.check_ws_timeout = null;
 
         this.reset = this.reset.bind(this);
@@ -304,6 +318,8 @@ class BasePage extends React.Component {
         this.backward = this.backward.bind(this);
         this.strafeLeft = this.strafeLeft.bind(this);
         this.strafeRight = this.strafeRight.bind(this);
+
+        this.updateListener = null;
     }
 
     componentDidMount() {
@@ -317,6 +333,12 @@ class BasePage extends React.Component {
         };
 
         this.check_ws_timeout = setTimeout(check_ws_and_send, 100);
+
+        // Setup the update listener
+        this.updateListener = (data) => this.setState(
+            { enabled: data.base_enable }
+        );
+        this.context.emitter.on("status:update", this.updateListener);
     }
 
     componentWillUnmount() {
@@ -324,6 +346,10 @@ class BasePage extends React.Component {
             clearTimeout(this.check_ws_timeout);
             this.check_ws_timeout = null;
         }
+
+        // Remove the update listener
+        this.context.emitter.off("status:update", this.updateListener);
+        this.updateListener = null;
     }
 
     reset(e) {
@@ -362,15 +388,25 @@ class BasePage extends React.Component {
         this.context.ws.send(JSON.stringify({ event: "BASE_STRAFE", value: -1 }));
     }
 
-    // Change the Tractor/Standby based on the state feedback in a future
-    // iteration
     render() {
+        var enable_button = null;
+        if (this.state.enabled) {
+            enable_button = (
+                <div className="mt-4 row">
+                    <div className="offset-3 col-6 btn btn-warning" onClick={this.standby}>Disable Base</div>
+                </div>
+            );
+        } else {
+            enable_button = (
+                <div className="mt-4 row">
+                    <div className="offset-3 col-6 btn btn-primary" onClick={this.tractor}>Enable Base</div>
+                </div>
+            );
+        }
+
         return (
             <div>
-            <div className="mt-4 row">
-                <div className="offset-1 col-4 btn btn-warning" onClick={this.tractor}>Enable</div>
-                <div className="offset-2 col-4 btn btn-warning" onClick={this.standby}>Disable</div>
-            </div>
+            { enable_button }
             <div className="mt-4 row text-center">
                 <div className="offset-1 col-2 btn btn-info" onMouseDown={this.spinLeft} onTouchStart={this.spinLeft} onMouseUp={this.reset} onTouchEnd={this.reset}>
                     <span className="fa fa-rotate-left fa-2x"></span>
@@ -471,19 +507,74 @@ GripperPage.contextTypes = {
 
 // The main content of the page
 class Main extends React.Component {
-    render() {
-        return (
-            <main>
-            <Switch>
-                <Route exact path="/" component={HomePage} />
-                <Route path="/kinect" component={KinectPage} />
-                <Route path="/base" component={BasePage} />
-                <Route path="/gripper" component={GripperPage} />
-            </Switch>
-            </main>
+    constructor(props) {
+        super(props);
+
+        this.state = { enabled: false };
+
+        this.enable = this.enable.bind(this);
+        this.disable = this.disable.bind(this);
+
+        this.updateListener = null;
+    }
+
+    enable(e) {
+        this.context.ws.send(JSON.stringify({ event: "ENABLE" }));
+    }
+
+    disable(e) {
+        this.context.ws.send(JSON.stringify({ event: "DISABLE" }));
+    }
+
+    componentDidMount() {
+        // Setup the update listener
+        this.updateListener = (data) => this.setState(
+            { enabled: data.teleop_enable }
         );
+        this.context.emitter.on("status:update", this.updateListener);
+    }
+
+    componentWillUnmount() {
+        // Remove the update listener
+        this.context.emitter.off("status:update", this.updateListener);
+        this.updateListener = null;
+    }
+
+    render() {
+        var display = null;
+
+        if (this.state.enabled) {
+            display = (
+                <main>
+                <div className="mt-4 row">
+                    <div className="offset-3 col-6 btn btn-danger" onClick={this.disable}>Disable Teleop</div>
+                </div>
+                <Switch>
+                    <Route exact path="/" component={HomePage} />
+                    <Route path="/kinect" component={KinectPage} />
+                    <Route path="/base" component={BasePage} />
+                    <Route path="/gripper" component={GripperPage} />
+                </Switch>
+                </main>
+            );
+        } else {
+            display = (
+                <main>
+                <div className="mt-4 row">
+                    <div className="offset-3 col-6 btn btn-success" onClick={this.enable}>Enable Teleop</div>
+                </div>
+                </main>
+            );
+        }
+
+        return display;
     }
 }
+
+Main.contextTypes = {
+    ws: PropTypes.object,
+    emitter: PropTypes.object
+};
 
 // The app interface
 class Interface extends React.Component {

@@ -136,8 +136,6 @@ class Teleoperator {
             return;
         }
 
-        console.log(this);
-
         // Set the timeout to publish messages regularly. Default is 50
         this.nh.getParam('/joy_node/autorepeat_rate')
             .then((rate) => { return rate; }, () => { return 50; })

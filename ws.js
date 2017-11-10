@@ -37,7 +37,6 @@ var routerFactory = function (options) {
             ws.send(JSON.stringify(state));
         }
         status.addListener(ws.statusCb);
-        teleop.start();
 
         // Setup for messages from the client
         ws.on('message', (msg) => {
@@ -65,10 +64,12 @@ var routerFactory = function (options) {
                 break;
             case "TRACTOR":
                 teleop.tractor_button();
+                status.setBaseEnable(true);
                 setTimeout(teleop.reset.bind(teleop), BUTTON_TIMEOUT);
                 break;
             case "STANDBY":
                 teleop.standby_button();
+                status.setBaseEnable(false);
                 setTimeout(teleop.reset.bind(teleop), BUTTON_TIMEOUT);
                 break;
             case "KINECT_PAN":
