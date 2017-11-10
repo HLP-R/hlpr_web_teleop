@@ -64,12 +64,12 @@ var routerFactory = function (options) {
                 break;
             case "TRACTOR":
                 teleop.tractor_button();
-                status.setBaseEnable(true);
+                status.setBaseEnable(true); // TODO: Use a topic
                 setTimeout(teleop.reset.bind(teleop), BUTTON_TIMEOUT);
                 break;
             case "STANDBY":
                 teleop.standby_button();
-                status.setBaseEnable(false);
+                status.setBaseEnable(false); // TODO: Use a topic
                 setTimeout(teleop.reset.bind(teleop), BUTTON_TIMEOUT);
                 break;
             case "KINECT_PAN":
