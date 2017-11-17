@@ -1,6 +1,6 @@
 # Web Teleop
 
-This node package provides the teleoperation interface to Prentice. It uses [`rosnodejs`](https://github.com/RethinkRobotics-opensource/rosnodejs) as the ROS interface, [`ws`](https://github.com/websockets/ws) as the websocket interface, and [`express`](https://expressjs.com/) as the HTTP server. The package is designed to work with [`hlpr_node_server`](https://github.com/HLP-R/hlpr_node_server).
+This node package provides the teleoperation interface to HLP-R. It uses [`rosnodejs`](https://github.com/RethinkRobotics-opensource/rosnodejs) as the ROS interface, [`ws`](https://github.com/websockets/ws) as the websocket interface, and [`express`](https://expressjs.com/) as the HTTP server. The package is designed to work with [`hlpr_node_server`](https://github.com/HLP-R/hlpr_node_server).
 
 ## Running
 
