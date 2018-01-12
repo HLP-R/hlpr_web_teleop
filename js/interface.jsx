@@ -57,7 +57,7 @@ class Header extends React.Component {
                         </li>
                     </ul>
                     <span className="navbar-text">
-                    Battery: { this.state.battery }%
+                    Battery: { Math.round(this.state.battery*100)/100 }%
                     </span>
                 </div>
             </nav>

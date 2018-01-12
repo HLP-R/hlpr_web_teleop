@@ -34,7 +34,11 @@ var routerFactory = function (options) {
             } else {
                 teleop.stop();
             }
-            ws.send(JSON.stringify(state));
+            ws.send(JSON.stringify(state), function (err) {
+                // Suppress error messages. For some reason, when a connection
+                // is killed, the callback is not getting unregistered. That's
+                // a TODO for a future iteration
+            });
         }
         status.addListener(ws.statusCb);
 
